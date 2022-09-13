@@ -1,18 +1,12 @@
-FROM alpine:edge
+FROM golang:1.19.1-buster as builder
 
-ENV GOPATH /go
+WORKDIR /app
+COPY . .
 
-RUN mkdir -p /go && \
-    apk update && \
-    apk add bash ca-certificates git go alpine-sdk && \
-    go get -v github.com/AcalephStorage/consul-alerts && \
-    mv /go/bin/consul-alerts /bin && \
-    go get -v github.com/hashicorp/consul && \
-    mv /go/bin/consul /bin && \
-    rm -rf /go && \
-    apk del --purge go git alpine-sdk && \
-    rm -rf /var/cache/apk/*
+RUN make build
 
+FROM alpine:3.16.2
+COPY --from=builder /app/bin/consul-alerts /bin/consul-alerts
 EXPOSE 9000
 CMD []
 ENTRYPOINT [ "/bin/consul-alerts", "--alert-addr=0.0.0.0:9000" ]
