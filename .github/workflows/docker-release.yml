@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
 
     env:
-      SERVICE_NAME: ilert-kube-agent
+      SERVICE_NAME: consul-alerts
       REGISTRY: ilert
 
     steps:
