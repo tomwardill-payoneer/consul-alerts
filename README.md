@@ -151,8 +151,8 @@ docker run -ti \
   --name consul-alerts \
   ilert/consul-alerts start \
   --consul-addr=consul-cluster.consul.XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX.aws.hashicorp.cloud \
-  --consul-scheme=https
-  --consul-dc=consul-cluster --consul-acl-token=<your acl token> --log-level=debug --watch-events --watch-checks
+  --consul-scheme=https \
+  --consul-dc=consul-cluster --consul-acl-token=your acl token --log-level=debug --watch-events --watch-checks
 ```
 
 **NOTE:** '--consul-scheme' has to be set to 'https' to work with HCP consul.
