@@ -31,11 +31,12 @@ type ConsulAlertClient struct {
 	config *ConsulAlertConfig
 }
 
-func NewClient(address, dc, aclToken string) (*ConsulAlertClient, error) {
+func NewClient(address, dc, scheme, aclToken string) (*ConsulAlertClient, error) {
 	config := consulapi.DefaultConfig()
 	config.Address = address
 	config.Datacenter = dc
 	config.Token = aclToken
+	config.Scheme = scheme
 	api, _ := consulapi.NewClient(config)
 	alertConfig := DefaultAlertConfig()
 

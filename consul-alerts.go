@@ -24,7 +24,7 @@ const version = "Consul Alerts 0.5.0"
 const usage = `Consul Alerts.
 
 Usage:
-  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
+  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-scheme=<scheme>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
   consul-alerts watch (checks|event) [--alert-addr=<addr>] [--log-level=<level>]
   consul-alerts --help
   consul-alerts --version
@@ -34,6 +34,7 @@ Options:
   --alert-addr=<addr>          The address for the consul-alert api [default: localhost:9000].
   --consul-addr=<consuladdr>   The consul api address [default: localhost:8500].
   --consul-dc=<dc>             The consul datacenter [default: dc1].
+  --consul-scheme=<scheme>     The scheme consul should use - valid values are "https", "http" [default: http]
   --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn", and "err" [default: warn].
   --watch-checks               Run check watcher.
   --watch-events               Run event watcher.
@@ -68,6 +69,7 @@ func daemonMode(arguments map[string]interface{}) {
 	consulAclToken := ""
 	consulAddr := ""
 	consulDc := ""
+	consulScheme := "http"
 	watchChecks := false
 	watchEvents := false
 	addr := ""
@@ -107,6 +109,15 @@ func daemonMode(arguments map[string]interface{}) {
 	} else {
 		consulDc = arguments["--consul-dc"].(string)
 	}
+	if confData["consul-scheme"] != nil {
+		consulScheme = confData["consul-scheme"].(string)
+	} else {
+		consulScheme = arguments["--consul-scheme"].(string)
+	}
+	if consulScheme != "http" && consulScheme != "https" {
+		consulScheme = "http"
+		log.Warnln("Unsupported consul scheme, using 'http'.")
+	}
 	if confData["alert-addr"] != nil {
 		addr = confData["alert-addr"].(string)
 	} else {
@@ -141,7 +152,7 @@ func daemonMode(arguments map[string]interface{}) {
 		os.Exit(1)
 	}
 
-	consulClient, err = consul.NewClient(consulAddr, consulDc, consulAclToken)
+	consulClient, err = consul.NewClient(consulAddr, consulDc, consulScheme, consulAclToken)
 	if err != nil {
 		log.Println("Cluster has no leader or is unreacheable.", err)
 		os.Exit(3)
@@ -154,7 +165,7 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Consul Agent:", consulAddr)
 	log.Println("Consul Datacenter:", consulDc)
 
-	leaderCandidate := startLeaderElection(consulAddr, consulDc, consulAclToken)
+	leaderCandidate := startLeaderElection(consulAddr, consulDc, consulScheme, consulAclToken)
 	notifEngine := startNotifEngine()
 
 	ep := startEventProcessor()

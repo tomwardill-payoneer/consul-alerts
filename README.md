@@ -139,6 +139,24 @@ docker run -ti \
 
 **NOTE:** Don't change --alert-addr when using the docker container.
 
+## Usage - HCP consul
+
+The iLert integration in consul alerts also supports connecting to a hashicorp consul cloud instance.
+As an example, the following command runs a docker with a consul alert instance and an already configured HCP consul instance:
+
+```sh
+docker run -ti \
+  -p 9000:9000 \
+  --hostname consul-alerts \
+  --name consul-alerts \
+  ilert/consul-alerts start \
+  --consul-addr=consul-cluster.consul.XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX.aws.hashicorp.cloud \
+  --consul-scheme=https
+  --consul-dc=consul-cluster --consul-acl-token=<your acl token> --log-level=debug --watch-events --watch-checks
+```
+
+**NOTE:** '--consul-scheme' has to be set to 'https' to work with HCP consul.
+
 ## Configuration
 
 To assure consistency between instances, configuration is stored in Consul's KV with the prefix: `consul-alerts/config/`. consul-alerts works out of the box without any customizations by using the defaults documented below and leverages the KV settings as overrides.
