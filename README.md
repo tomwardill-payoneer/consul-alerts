@@ -9,15 +9,15 @@
 
 A highly available daemon for sending notifications and reminders based on Consul health checks.
 
-Under the covers, consul-alerts leverages Consul's own leadership election and KV store to provide automastic failover and seamless operation in the case of a consul-alerts node failure and ensures that your notifications are still sent.
+Under the covers, consul-alerts leverages Consul's own leadership election and KV store to provide automatic failover and seamless operation in the case of a consul-alerts node failure and ensures that your notifications are still sent.
 
 consul-alerts provides a high degree of configuration including:
 
-- Several built-in [Notifiers](#notifiers) for distribution of health check alerts (email, sns, pagerduty, etc.)
+- Several built-in [Notifiers](#notifiers) for distribution of health check alerts, including iLert, email, SNS, PagerDuty, etc.
 - The ability to create Notification Profiles, sets of Notifiers which will respond to the given alert when a configurable threshold is exceeded
 - Multiple degrees of customization for Notifiers and Blacklisting of alerts (service, check id or host)
 
-## Requirement
+## Requirements
 
 1. Consul 0.4+. Get it [here](http://consul.io).
 2. Configured `GOPATH`.
@@ -436,6 +436,20 @@ prefix: `consul-alerts/config/notifiers/email/`
 
 The template can be any go html template. An `TemplateData` instance will be passed to the template.
 
+#### iLert
+
+To enable iLert built-in notifier, set
+`consul-alerts/config/notifiers/ilert/enabled` to `true`. Service API
+key needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/ilert/`
+
+| key                   | description                                                               |
+| --------------------- | ------------------------------------------------------------------------- |
+| enabled               | Enable the iLert notifier. [Default: false]                               |
+| api-key               | The API key of the alert source. (mandatory)                              |
+| incident-key-template | Format of the incident key. [Default: `{{.Node}}:{{.Service}}:{{.Check}}` |
+
 #### InfluxDB
 
 This sends the notifications as series points in influxdb. Set `consul-alerts/config/notifiers/influxdb/enabled` to `true` to enabled. InfluxDB details need to be set too.
@@ -615,20 +629,6 @@ The value of 'payload' must be a json map of type string. Value will be rendered
   "message": "{{ range $name, $checks := .Nodes }}{{ range $check := $checks }}{{ $name }}:{{$check.Service}}:{{$check.Check}} is {{$check.Status}}.{{ end }}{{ end }}"
 }
 ```
-
-#### iLert
-
-To enable iLert built-in notifier, set
-`consul-alerts/config/notifiers/ilert/enabled` to `true`. Service API
-key needs to be configured.
-
-prefix: `consul-alerts/config/notifiers/ilert/`
-
-| key                   | description                                                               |
-| --------------------- | ------------------------------------------------------------------------- |
-| enabled               | Enable the iLert notifier. [Default: false]                               |
-| api-key               | The API key of the alert source. (mandatory)                              |
-| incident-key-template | Format of the incident key. [Default: `{{.Node}}:{{.Service}}:{{.Check}}` |
 
 ## Health Check via API
 
