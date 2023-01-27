@@ -1,0 +1,44 @@
+version: '3'
+
+########################################
+# To send a demo alert:
+# 1. run `docker-compose up -d` in terminal
+# 2. wait for consul server startup
+# 3. copy your integration key from ilert
+# 4. put the key into config: `curl -X PUT -d 'YOUR_API_KEY' http://localhost:8500/v1/kv/consul-alerts/config/notifiers/ilert/api-key`
+# 5. enable the integration: `curl -X PUT -d 'true' http://localhost:8500/v1/kv/consul-alerts/config/notifiers/ilert/enabled`
+# 6. to trigger an alert kill the consul agent node: `docker kill $(docker ps -aqf "name=consul-agent-1")`
+# 7. to resolve the alert start the consul agent node again: `docker-compose up -d consul-agent-1`
+########################################
+
+services:
+  consul-alerts:
+    # image: ilert/consul-alerts
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: "/bin/consul-alerts"
+    command: "start --log-level=debug --watch-checks --alert-addr=localhost:9000 --consul-addr=consul-server:8500 --consul-dc=dc1 --consul-acl-token=''"
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+    links:
+      - consul-server
+
+  consul-server:
+    image: consul:latest
+    networks:
+      - consul
+    ports:
+      - "8500:8500"
+    command: "agent -server -bootstrap-expect 1 -ui -client 0.0.0.0"
+
+  consul-agent-1:
+    image: consul:latest
+    networks:
+      - consul
+    command: "agent -retry-join consul-server -client 0.0.0.0"
+
+networks:
+  consul:
