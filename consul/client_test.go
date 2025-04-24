@@ -82,6 +82,34 @@ func TestLoadCustomValueForInt(t *testing.T) {
 	}
 }
 
+func TestLoadCustomValueForMap(t *testing.T) {
+	var mapVar map[string]string
+	expectedVal := map[string]string{"key": "value"}
+	inputs := []string{
+		`{"key":"value"}`,
+		`{ "key" : "value" }`,
+	}
+	multipleInputs := []string{
+		`{"key":"value", "key2":"value2"}`,
+		`{ "key" : "value", "key2" : "value2" }`,
+		`{ "key" : "value", "key2" : "value2", }`,
+	}
+	for _, input := range inputs {
+		loadCustomValue(&mapVar, []byte(input), ConfigTypeStrMap)
+		if !reflect.DeepEqual(mapVar, expectedVal) {
+			t.Errorf("unable to parse %s to map", input)
+		}
+	}
+
+	multipleKeyVal := map[string]string{"key": "value", "key2": "value2"}
+	for _, input := range multipleInputs {
+		loadCustomValue(&mapVar, []byte(input), ConfigTypeStrMap)
+		if !reflect.DeepEqual(mapVar, multipleKeyVal) {
+			t.Errorf("unable to parse %s to map", input)
+		}
+	}
+}
+
 func TestGetProfileForEntity(t *testing.T) {
 	client, err := testClient()
 	if err != nil {

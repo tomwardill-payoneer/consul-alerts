@@ -10,26 +10,27 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type HttpEndpointNotifier struct {
+type IncidentIONotifier struct {
 	Enabled     bool
 	ClusterName string            `json:"cluster-name"`
 	BaseURL     string            `json:"base-url"`
 	Endpoint    string            `json:"endpoint"`
 	Payload     map[string]string `json:"payload"`
+	Metadata    map[string]string `json:"metadata"`
 }
 
 // NotifierName provides name for notifier selection
-func (notifier *HttpEndpointNotifier) NotifierName() string {
-	return "http-endpoint"
+func (notifier *IncidentIONotifier) NotifierName() string {
+	return "incidentio"
 }
 
-func (notifier *HttpEndpointNotifier) Copy() Notifier {
+func (notifier *IncidentIONotifier) Copy() Notifier {
 	n := *notifier
 	return &n
 }
 
 // Notify sends messages to the endpoint notifier
-func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
+func (notifier *IncidentIONotifier) Notify(messages Messages) bool {
 	overallStatus, pass, warn, fail := messages.Summary()
 	t := TemplateData{
 		ClusterName:  notifier.ClusterName,
@@ -39,7 +40,7 @@ func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
 		PassCount:    pass,
 		Nodes:        mapByNodes(messages),
 	}
-	values := map[string]string{}
+	values := map[string]any{}
 
 	for key, val := range notifier.Payload {
 		data, err := renderTemplate(t, "", val)
@@ -49,6 +50,18 @@ func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
 		}
 		values[key] = string(data)
 	}
+
+	metadataValues := map[string]string{}
+	for key, val := range notifier.Metadata {
+		data, err := renderTemplate(t, "", val)
+		if err != nil {
+			log.Println("Error rendering template: ", err)
+			return false
+		}
+		metadataValues[key] = string(data)
+	}
+
+	values["metadata"] = metadataValues
 
 	requestBody, err := json.Marshal(values)
 	if err != nil {

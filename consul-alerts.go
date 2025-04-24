@@ -262,6 +262,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	victoropsNotifier := consulClient.VictorOpsNotifier()
 	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
 	ilertNotifier := consulClient.ILertNotifier()
+	incidentIONotifier := consulClient.IncidentIONotifier()
 
 	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
@@ -302,6 +303,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	}
 	if ilertNotifier.Enabled {
 		notifiers[ilertNotifier.NotifierName()] = ilertNotifier
+	}
+	if incidentIONotifier.Enabled {
+		notifiers[incidentIONotifier.NotifierName()] = incidentIONotifier
 	}
 
 	return notifiers

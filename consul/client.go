@@ -261,6 +261,21 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.ILert.ApiKey, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/ilert/incident-key-template":
 				valErr = loadCustomValue(&config.Notifiers.ILert.IncidentKeyTemplate, val, ConfigTypeString)
+
+			// incident.io notifier config
+			case "consul-alerts/config/notifiers/incidentio/enabled":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/incidentio/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/incidentio/base-url":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.BaseURL, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/incidentio/endpoint":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Endpoint, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/incidentio/payload":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Payload, val, ConfigTypeStrMap)
+			case "consul-alerts/config/notifiers/incidentio/metadata":
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Payload, val, ConfigTypeStrMap)
+
 			}
 
 			if valErr != nil {
@@ -569,6 +584,10 @@ func (c *ConsulAlertClient) HttpEndpointNotifier() *notifier.HttpEndpointNotifie
 
 func (c *ConsulAlertClient) ILertNotifier() *notifier.ILertNotifier {
 	return c.config.Notifiers.ILert
+}
+
+func (c *ConsulAlertClient) IncidentIONotifier() *notifier.IncidentIONotifier {
+	return c.config.Notifiers.IncidentIO
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

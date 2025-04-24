@@ -82,6 +82,7 @@ type Consul interface {
 	VictorOpsNotifier() *notifier.VictorOpsNotifier
 	HttpEndpointNotifier() *notifier.HttpEndpointNotifier
 	ILertNotifier() *notifier.ILertNotifier
+	IncidentIONotifier() *notifier.IncidentIONotifier
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -180,6 +181,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		IncidentKeyTemplate: "{{.Node}}:{{.Service}}:{{.Check}}",
 	}
 
+	incidentIO := &notifier.IncidentIONotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	notifiers := &notifier.Notifiers{
 		Email:             email,
 		Log:               log,
@@ -194,6 +200,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		VictorOps:         victorOps,
 		HttpEndpoint:      httpEndpoint,
 		ILert:             ilert,
+		IncidentIO:        incidentIO,
 		Custom:            []string{},
 	}
 
