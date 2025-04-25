@@ -71,17 +71,17 @@ func (notifier *IncidentIONotifier) Notify(messages Messages) bool {
 
 	endpoint := fmt.Sprintf("%s%s", notifier.BaseURL, notifier.Endpoint)
 	if res, err := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody)); err != nil {
-		log.Println("Unable to send data to HTTP endpoint:", err)
+		log.Println("Unable to send data to incident.io endpoint:", err)
 		return false
 	} else {
 		defer res.Body.Close()
 		statusCode := res.StatusCode
-		if statusCode != 200 {
+		if statusCode != 202 {
 			body, _ := ioutil.ReadAll(res.Body)
-			log.Println("Unable to notify HTTP endpoint:", string(body))
+			log.Println("Unable to notify incident.io endpoint:", string(body))
 			return false
 		} else {
-			log.Println("Notification sent to HTTP endpoint.")
+			log.Println("Notification sent to incident.io endpoint.")
 			return true
 		}
 	}

@@ -274,7 +274,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/incidentio/payload":
 				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Payload, val, ConfigTypeStrMap)
 			case "consul-alerts/config/notifiers/incidentio/metadata":
-				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Payload, val, ConfigTypeStrMap)
+				valErr = loadCustomValue(&config.Notifiers.IncidentIO.Metadata, val, ConfigTypeStrMap)
 
 			}
 
