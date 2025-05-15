@@ -32,12 +32,11 @@ func (notifier *IncidentIONotifier) Copy() Notifier {
 // Notify sends messages to the endpoint notifier
 func (notifier *IncidentIONotifier) Notify(messages Messages) bool {
 
-	for _, message := range messages {
+	for i := 0; i < len(messages); i++ {
 		// Messages is a slice of Message, but we need to send a single message
 		// at a time and all of our rendering expects a slice
 		// So make a single element slice and use that
-		single_messages := make(Messages, 0)
-		single_messages = append(single_messages, message)
+		single_messages := messages[i : i+1]
 
 		overallStatus, pass, warn, fail := messages.Summary()
 		t := TemplateData{
