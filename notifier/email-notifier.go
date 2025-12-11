@@ -37,7 +37,7 @@ func (emailNotifier *EmailNotifier) Copy() Notifier {
 	return &notifier
 }
 
-//Notify sends messages to the endpoint notifier
+// Notify sends messages to the endpoint notifier
 func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 	overAllStatus, pass, warn, fail := alerts.Summary()
@@ -131,10 +131,20 @@ Content-Type: text/html; charset="UTF-8";
 			renderedTemplate)
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
-		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
-			log.Println("Unable to send notification:", err)
-			continue
+		if (emailNotifier.Username == "") || (emailNotifier.Password == "") {
+			log.Println("Sending email without authentication")
+			if err := sendMail(addr, nil, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+				log.Println("Unable to send notification:", err)
+				success = false
+				continue
+			}
+		} else {
+			auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
+			if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+				log.Println("Unable to send notification:", err)
+				success = false
+				continue
+			}
 		}
 		log.Println("Email notification sent.")
 		success = success && true
