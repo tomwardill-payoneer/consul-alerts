@@ -1,4 +1,4 @@
-FROM golang:1.19.1-buster as builder
+FROM golang:1.22-bookworm as builder
 
 WORKDIR /app
 COPY . .
